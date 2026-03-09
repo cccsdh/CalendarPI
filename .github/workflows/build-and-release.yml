@@ -92,7 +92,8 @@ jobs:
           release_name: Release ${{ env.RELEASE_TAG }}
           draft: false
           prerelease: false
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # The action uses the built-in GITHUB_TOKEN from the workflow environment.
+          # Do not pass token as an input to avoid unexpected input warnings.
 
       - name: Upload Windows asset
         uses: actions/upload-release-asset@v1
