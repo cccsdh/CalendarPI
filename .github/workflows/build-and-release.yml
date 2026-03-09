@@ -1,0 +1,52 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Publish win-x64
+        run: |
+          dotnet publish CalendarPi/CalendarPi.csproj -c Release -r win-x64 --self-contained false /p:PublishTrimmed=false -o ./publish/win-x64
+          mkdir -p dist
+          cd publish
+          zip -r ../CalendarPi-win-x64-${{ github.run_number }}.zip win-x64
+          cd ..
+
+      - name: Publish linux-arm64
+        run: |
+          dotnet publish CalendarPi/CalendarPi.csproj -c Release -r linux-arm64 --self-contained false /p:PublishTrimmed=false -o ./publish/linux-arm64
+          cd publish
+          zip -r ../CalendarPi-linux-arm64-${{ github.run_number }}.zip linux-arm64
+          cd ..
+
+      - name: Compute release tag
+        run: |
+          echo "RELEASE_TAG=$(date -u +%Y.%m.%d).${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Create GitHub release and upload artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ env.RELEASE_TAG }}
+          name: Release ${{ env.RELEASE_TAG }}
+          files: |
+            CalendarPi-win-x64-${{ github.run_number }}.zip
+            CalendarPi-linux-arm64-${{ github.run_number }}.zip
