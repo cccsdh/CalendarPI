@@ -92,8 +92,7 @@ jobs:
           release_name: Release ${{ env.RELEASE_TAG }}
           draft: false
           prerelease: false
-          # The action uses the built-in GITHUB_TOKEN from the workflow environment.
-          # Do not pass token as an input to avoid unexpected input warnings.
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Windows asset
         uses: actions/upload-release-asset@v1
@@ -102,6 +101,7 @@ jobs:
           asset_path: ./CalendarPi-win-x64-${{ github.run_number }}.zip
           asset_name: CalendarPi-win-x64-${{ github.run_number }}.zip
           asset_content_type: application/zip
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Linux ARM64 asset
         uses: actions/upload-release-asset@v1
@@ -110,3 +110,4 @@ jobs:
           asset_path: ./CalendarPi-linux-arm64-${{ github.run_number }}.zip
           asset_name: CalendarPi-linux-arm64-${{ github.run_number }}.zip
           asset_content_type: application/zip
+          token: ${{ secrets.GITHUB_TOKEN }}
